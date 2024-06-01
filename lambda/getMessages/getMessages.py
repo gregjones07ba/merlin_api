@@ -7,7 +7,7 @@ logger.setLevel("INFO")
 def lambda_handler(event, context):
     logger.info(f"game: {event['game']}")
     
-    result = {
+    return {
         'messages': [
             {
                 'userId': 12,
@@ -16,9 +16,4 @@ def lambda_handler(event, context):
                 }
             }
         ]
-    }
-    
-    return {
-        'statusCode': 200,
-        'body': json.dumps(result)
     }
