@@ -10,7 +10,8 @@ def lambda_handler(event, context):
     return {
         'messages': [
             {
-                'id': 0,
+                'id': 'abcd1234-dcba-4321-abcd-1234dcba4321',
+                'seq': 0,
                 'user': {
                     'id': 12,
                     'type': 'player'
