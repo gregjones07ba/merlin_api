@@ -10,7 +10,7 @@ def lambda_handler(event, context):
     return {
         'messages': [
             {
-                'userId': 12,
+                'user': 12,
                 'effect': {
                     'text': 'I cast Fireball!'
                 }
