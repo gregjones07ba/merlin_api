@@ -5,7 +5,7 @@ logger = logging.getLogger()
 logger.setLevel("INFO")
 
 def lambda_handler(event, context):
-    logger.info(f"game: {event['game']}")
+    logger.info(event)
     
     return {
         'messages': [
