@@ -21,9 +21,9 @@ def lambda_handler(event, context):
     
     game_pk = f"GAME_{event['game']}"
     key_condition = Key('PK').eq(game_pk) & Key('SK').begins_with("MESSAGE_")
-    if start:
+    if start is not None:
         key_condition = key_condition & Key('SK').gt(f"MESSAGE_{start}")
-    if end:
+    if end is not None:
         key_condition = key_condition & Key('SK').lt(f"MESSAGE_{end}")
     
     response = table.query(
