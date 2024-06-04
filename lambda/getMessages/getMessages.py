@@ -39,9 +39,11 @@ def lambda_handler(event, context):
     }
     
 def transform(message_item):
+    seq = int(message_item['SK'][len('MESSAGE_'):])
+    
     return {
         'id': message_item['id'],
-        'seq': message_item['SK'],
+        'seq': seq,
         'user': {
             'id': message_item['user.id'],
             'type': message_item['user.type']
