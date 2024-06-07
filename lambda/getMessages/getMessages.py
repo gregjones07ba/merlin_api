@@ -7,24 +7,23 @@ logger = logging.getLogger()
 logger.setLevel("INFO")
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('merlin_main')
+table = dynamodb.Table('merlin_messages')
 
 def lambda_handler(event, context):
     logger.info(event)
     
     game = event['game']
     start_str = event['start']
-    end_str = event['end'] or None
+    end_str = event['end']
     
     start = int(start_str) if start_str else None
     end = int(end_str) if end_str else None
     
-    game_pk = f"GAME_{event['game']}"
-    key_condition = Key('PK').eq(game_pk) & Key('SK').begins_with("MESSAGE_")
+    key_condition = Key('game').eq(event['game'])
     if start is not None:
-        key_condition = key_condition & Key('SK').gt(f"MESSAGE_{start}")
-    if end is not None:
-        key_condition = key_condition & Key('SK').lt(f"MESSAGE_{end}")
+        key_condition = key_condition & Key('seq').gt(start)
+    elif end is not None:
+        key_condition = key_condition & Key('seq').lt(end)
     
     response = table.query(
         KeyConditionExpression = key_condition,
@@ -32,18 +31,16 @@ def lambda_handler(event, context):
         ScanIndexForward = False
     )
     
-    messages = [ transform(item) for item in response['Items'] ]
-    
     return {
-        'messages': messages
+        'messages': [ transform(item) for item in response['Items'] ]
     }
     
 def transform(message_item):
-    seq = int(message_item['SK'][len('MESSAGE_'):])
+    seq = message_item['seq']
     
     return {
         'id': message_item['id'],
-        'seq': seq,
+        'seq': message_item['seq'],
         'user': {
             'id': message_item['user.id'],
             'type': message_item['user.type']
