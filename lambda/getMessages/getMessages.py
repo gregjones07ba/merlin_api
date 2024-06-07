@@ -1,7 +1,7 @@
 import json
 import logging
 import boto3
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -20,7 +20,9 @@ def lambda_handler(event, context):
     end = int(end_str) if end_str else None
     
     key_condition = Key('game').eq(event['game'])
-    if start is not None:
+    if start is not None and end is not None:
+        key_condition = key_condition & Key('seq').between(start, end)
+    elif start is not None:
         key_condition = key_condition & Key('seq').gt(start)
     elif end is not None:
         key_condition = key_condition & Key('seq').lt(end)
@@ -32,7 +34,11 @@ def lambda_handler(event, context):
     )
     
     return {
-        'messages': [ transform(item) for item in response['Items'] ]
+        'messages': [
+            transform(item)
+            for item in response['Items']
+            if include(item, start, end)
+        ]
     }
     
 def transform(message_item):
@@ -47,3 +53,10 @@ def transform(message_item):
         },
         'effect': json.loads(message_item['effect'])
     }
+    
+def include(message_item, start, end):
+    # must enforce in code because the between key condition cannot be an exclusive range
+    return (
+        (start is None or start < message_item['seq']) and
+        (end is None or message_item['seq'] < end)
+    )
