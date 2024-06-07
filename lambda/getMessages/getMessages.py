@@ -1,7 +1,7 @@
 import json
 import logging
 import boto3
-from boto3.dynamodb.conditions import Key, Attr
+from boto3.dynamodb.conditions import Key
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
