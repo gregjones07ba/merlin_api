@@ -1,7 +1,8 @@
 import json
 import logging
 import boto3
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
+import time
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -12,6 +13,12 @@ table = dynamodb.Table('merlin_messages')
 def lambda_handler(event, context):
     logger.info(event)
 
+    add_message(event)
+
+    return {
+    }
+    
+def add_message(event):
     payload = event['payload']
     
     response = table.query(
@@ -24,15 +31,17 @@ def lambda_handler(event, context):
         seq = item['seq'] + 1
     else:
         seq = 0
+        
+    time.sleep(10)
     
-    table.put_item(Item={
-        'game': event['game'],
-        'seq': seq,
-        'id': payload['id'],
-        'user.id': payload['user']['id'],
-        'user.type': payload['user']['type'],
-        'effect': json.dumps(payload['effect'])
-    })
-    
-    return {
-    }
+    table.put_item(
+        Item={
+            'game': event['game'],
+            'seq': seq,
+            'id': payload['id'],
+            'user.id': payload['user']['id'],
+            'user.type': payload['user']['type'],
+            'effect': json.dumps(payload['effect'])
+        },
+        ConditionExpression=Attr('game').not_exists()
+    )
