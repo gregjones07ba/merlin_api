@@ -2,6 +2,7 @@ import json
 import logging
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
+from botocore.exceptions import ClientError
 import time
 
 logger = logging.getLogger()
@@ -13,7 +14,15 @@ table = dynamodb.Table('merlin_messages')
 def lambda_handler(event, context):
     logger.info(event)
 
-    add_message(event)
+    for retry in (0.2, 0.5, 1.0, None):
+        try:
+            add_message(event)
+            break
+        except ClientError as exc:
+            if not retry_exc(exc) or retry is None:
+                raise
+            else:
+                time.sleep(retry)
 
     return {
     }
@@ -31,9 +40,7 @@ def add_message(event):
         seq = item['seq'] + 1
     else:
         seq = 0
-        
-    time.sleep(10)
-    
+
     table.put_item(
         Item={
             'game': event['game'],
@@ -45,3 +52,6 @@ def add_message(event):
         },
         ConditionExpression=Attr('game').not_exists()
     )
+    
+def retry_exc(exc):
+    return exc.response['Error']['Code'] == 'ConditionalCheckFailedException'
