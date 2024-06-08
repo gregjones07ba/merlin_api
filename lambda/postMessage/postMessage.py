@@ -51,7 +51,7 @@ def add_message(event):
             'user.type': payload['user']['type'],
             'effect': json.dumps(payload['effect'])
         },
-        ConditionExpression=Attr('game').not_exists(),
+        ConditionExpression="attribute_not_exists(game)",
         ClientRequestToken=payload['id']
     )
     
@@ -69,7 +69,7 @@ def transact_put_item(Item, ConditionExpression, ClientRequestToken):
                         "user.type": {"S": Item['user.type']},
                         "effect": {"S": Item['effect']}
                     },
-                    "ConditionExpression": "attribute_not_exists(game)"
+                    "ConditionExpression": ConditionExpression
                 }
             }
         ],
