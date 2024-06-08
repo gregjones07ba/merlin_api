@@ -10,6 +10,7 @@ logger.setLevel("INFO")
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('merlin_messages')
+client = boto3.client('dynamodb')
 
 def lambda_handler(event, context):
     logger.info(event)
@@ -41,7 +42,7 @@ def add_message(event):
     else:
         seq = 0
 
-    table.put_item(
+    transact_put_item(
         Item={
             'game': event['game'],
             'seq': seq,
@@ -50,7 +51,29 @@ def add_message(event):
             'user.type': payload['user']['type'],
             'effect': json.dumps(payload['effect'])
         },
-        ConditionExpression=Attr('game').not_exists()
+        ConditionExpression="attribute_not_exists(game)",
+        ClientRequestToken=payload['id']
+    )
+    
+def transact_put_item(Item, ConditionExpression, ClientRequestToken):
+    client.transact_write_items(
+        TransactItems=[
+            {
+                'Put': {
+                    "TableName": "merlin_messages",
+                    "Item": {
+                        "game": {"S": Item['game']},
+                        "seq": {"N": str(Item['seq'])},  # Assuming seq is a number
+                        "id": {"S": Item['id']},
+                        "user.id": {"N": str(Item['user.id'])},
+                        "user.type": {"S": Item['user.type']},
+                        "effect": {"S": Item['effect']}
+                    },
+                    "ConditionExpression": ConditionExpression
+                }
+            }
+        ],
+        ClientRequestToken=ClientRequestToken
     )
     
 def retry_exc(exc):
