@@ -1,15 +1,18 @@
 import json
 import logging
+from os import environ
+import time
+
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
-import time
+
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('merlin_messages')
+table = dynamodb.Table(environ['MESSAGES_TABLE'])
 
 def lambda_handler(event, context):
     logger.info(event)

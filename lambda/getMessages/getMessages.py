@@ -1,5 +1,7 @@
 import json
 import logging
+from os import environ
+
 import boto3
 from boto3.dynamodb.conditions import Key
 
@@ -7,7 +9,7 @@ logger = logging.getLogger()
 logger.setLevel("INFO")
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('merlin_messages')
+table = dynamodb.Table(environ['MESSAGES_TABLE'])
 
 def lambda_handler(event, context):
     logger.info(event)
