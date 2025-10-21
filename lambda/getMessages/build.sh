@@ -3,6 +3,6 @@
 poetry sync
 mkdir -p dist
 cp -R .venv/lib/python*/site-packages/* dist
-cp src/getmessage/getMessage.py dist
+cp src/getmessages/getMessages.py dist
 cd dist
 zip -r ../lambda.zip .
