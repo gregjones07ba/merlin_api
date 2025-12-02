@@ -17,7 +17,9 @@ jobs:
         uses: snok/install-poetry@v1
 
       - name: Build getMessages zip
-        run: ./lambda/getMessages/build.sh
+        working-directory: lambda/getMessages
+        run: ./build.sh
 
       - name: Build postMessage zip
-        run: ./lambda/postMessage/build.sh
+        working-directory: lambda/postMessage
+        run: ./build.sh
