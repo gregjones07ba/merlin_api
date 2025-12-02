@@ -28,3 +28,17 @@ jobs:
       - name: Build postMessage zip
         working-directory: lambda/postMessage
         run: ./build.sh
+
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::580938938844:role/github_merlin_api
+          aws-region: us-east-1
+
+      - name: Check access
+        run: aws sts get-caller-identity
