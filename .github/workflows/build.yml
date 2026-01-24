@@ -1,0 +1,81 @@
+name: Build and upload code
+
+on:
+  push:
+    branches:
+      - "**"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Build getMessages zip
+        working-directory: lambda/getMessages
+        run: ./build.sh
+
+      - name: Upload getMessages zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: getMessages-zip
+          path: lambda/getMessages/lambda.zip
+
+      - name: Build postMessage zip
+        working-directory: lambda/postMessage
+        run: ./build.sh
+
+      - name: Upload postMessage zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: postMessage-zip
+          path: lambda/postMessage/lambda.zip
+
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download getMessages zip
+        uses: actions/download-artifact@v4
+        with:
+          name: getMessages-zip
+          path: lambda/getMessages
+
+      - name: Download postMessage zip
+        uses: actions/download-artifact@v4
+        with:
+          name: postMessage-zip
+          path: lambda/postMessage
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::580938938844:role/github_merlin_api
+          aws-region: us-east-1
+
+      - name: Upload getMessages zip to S3
+        run: |
+          DEST="s3://merlin-1758dca1a93843f1a03d0b6d8f9277d1/dist/lambda/getMessages/versions/${GITHUB_RUN_ID}/"
+          echo "aws s3 cp lambda/getMessages/lambda.zip $DEST"
+          aws s3 cp lambda/getMessages/lambda.zip $DEST
+
+      - name: Upload postMessage zip to S3
+        run: |
+          DEST="s3://merlin-1758dca1a93843f1a03d0b6d8f9277d1/dist/lambda/postMessage/versions/${GITHUB_RUN_ID}/"
+          echo "aws s3 cp lambda/postMessage/lambda.zip $DEST"
+          aws s3 cp lambda/postMessage/lambda.zip $DEST
