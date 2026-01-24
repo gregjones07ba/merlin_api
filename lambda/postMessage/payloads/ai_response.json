@@ -1,0 +1,17 @@
+{
+  "game": "1",
+  "payload": {
+    "id": "abcd5678-dcba-8765-abcd-5678dcba8765",
+    "user": {
+      "id": 1,
+      "type": "agent"
+    },
+    "effect": {
+      "abilityCheckStat": "DEX",
+      "abilityCheckProf": "SAVE",
+      "target": 99,
+      "advantage": false,
+      "disadvantage": false
+    }
+  }
+}
