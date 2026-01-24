@@ -10,6 +10,14 @@ Back-end API for Merlin gen-AI DM
 
 # Test
 
+## API
+
+1. Navigate to API Gateway in AWS console
+1. Stages
+1. Copy Invoke URL
+1. curl [invoke url]/api/v1/1/messages
+1. curl "[invoke url]/api/v1/1/messages?start=1&end=3"
+
 ## Lambda
 
 1. Navigate to Lambda function in AWS console
