@@ -1,0 +1,10 @@
+{
+  "id": "abcd1234-dcba-4321-abcd-1234dcba4321",
+  "user": {
+    "id": 12,
+    "type": "player"
+  },
+  "effect": {
+    "text": "I cast Fireball!"
+  }
+}

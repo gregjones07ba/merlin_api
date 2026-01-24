@@ -15,6 +15,13 @@ Back-end API for Merlin gen-AI DM
 1. Navigate to API Gateway in AWS console
 1. Stages
 1. Copy Invoke URL
+
+### POST
+
+1. curl -X POST -H "Content-Type: application/json" -d @"api/payloads/message.json" "[invoke url]/api/v1/1/messages"
+
+### GET
+
 1. curl [invoke url]/api/v1/1/messages
 1. curl "[invoke url]/api/v1/1/messages?start=1&end=3"
 
